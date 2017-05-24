@@ -61,6 +61,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         // Update is called once per frame
         private void Update()
         {
+            bool crouch = Input.GetKey(KeyCode.C);
             RotateView();
             // the jump state needs to read here to make sure it is not missed
             if (!m_Jump)
@@ -81,6 +82,16 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
 
             m_PreviouslyGrounded = m_CharacterController.isGrounded;
+
+            if (crouch)
+            {
+                m_Camera.transform.localPosition = new Vector3(0, 0.4f, 0);
+                m_WalkSpeed = 0.8f;
+            }
+            if (!crouch)
+            {
+                m_WalkSpeed = 6.0f;
+            }
         }
 
 
@@ -94,6 +105,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
         private void FixedUpdate()
         {
+            
             float speed;
             GetInput(out speed);
             // always move along the camera forward as it is the direction that it being aimed at
@@ -107,6 +119,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
             m_MoveDir.x = desiredMove.x*speed;
             m_MoveDir.z = desiredMove.z*speed;
+
 
 
             if (m_CharacterController.isGrounded)
@@ -131,6 +144,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
             UpdateCameraPosition(speed);
 
             m_MouseLook.UpdateCursorLock();
+
+           
         }
 
 
@@ -197,6 +212,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 newCameraPosition = m_Camera.transform.localPosition;
                 newCameraPosition.y = m_OriginalCameraPosition.y - m_JumpBob.Offset();
             }
+
             m_Camera.transform.localPosition = newCameraPosition;
         }
 
