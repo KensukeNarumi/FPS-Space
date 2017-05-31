@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Gun : MonoBehaviour {
     public GameObject bullet;
+    public GameObject muzzle;
     float bulletInterval;
     public float bulletspeed;
     AudioClip fireSound;
@@ -23,14 +24,23 @@ public class Gun : MonoBehaviour {
         {
             if (bulletInterval >= 1.0f)
             {
-                GameObject bullet2 = (GameObject)Instantiate(bullet, transform.position, bullet.transform.rotation);
-                Ray rayOrigin = new Ray(transform.position,-transform.forward);
-                Vector3 direction = rayOrigin.direction;
-                bullet2.GetComponent<Rigidbody>().velocity = direction * bulletspeed;
-                audioSource.PlayOneShot(fireSound);
-                GameObject effectObj = Resources.Load<GameObject>("Effects/FireImage");
-                Instantiate(effectObj, effectObj.transform.position, effectObj.transform.rotation);
+                Fire();
+                PlayFireAudio();     
             }
-        }
+         }
 	}
+    void Fire()
+    {
+        GameObject bullet2 = (GameObject)Instantiate(bullet, muzzle.transform.position, bullet.transform.rotation);
+        Ray rayOrigin = new Ray(muzzle.transform.position, -transform.forward);
+        Vector3 direction = rayOrigin.direction;
+        bullet2.GetComponent<Rigidbody>().velocity = direction * bulletspeed;
+        GameObject effectObj = Resources.Load<GameObject>("Effects/FireEffect(1)");
+        Instantiate(effectObj, muzzle.transform.position, effectObj.transform.rotation);
+    }
+    void PlayFireAudio()
+    {
+        audioSource.PlayOneShot(fireSound);
+        
+    }
 }

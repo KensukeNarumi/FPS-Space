@@ -14,7 +14,7 @@ public class Bullet : MonoBehaviour {
 	}
     private void OnCollisionEnter(Collision collision)
     {
-        GameObject effectObj = Resources.Load<GameObject>("Effects/FireImage2");
+        GameObject effectObj = Resources.Load<GameObject>("Effects/FireEffect");
         Instantiate(effectObj, this.gameObject.transform.position, effectObj.transform.rotation);
         Destroy(this.gameObject);
     }
