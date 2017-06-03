@@ -65,7 +65,7 @@ public class Gun : MonoBehaviour {
                 if (targetScript.life > 0)
                 {
                     targetScript.life -= 1;
-                    score = 1000 / (dis+1);
+                    score = Mathf.Floor(1000 / (dis+1));
                     print(score);
                 }
                 if (targetScript.life == 0 && Isalive==true)
