@@ -4,20 +4,28 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Gun : MonoBehaviour {
-    public GameObject bullet;
     public GameObject muzzle;
+    public GameObject target;
+    public GameObject headMarker;
+    Target targetScript;
     float bulletInterval;
-    public float bulletspeed;
     int Bullet;
     int Bulletbox;
+    Vector3 HeadMarkerPosition;
+    float score;
+    bool Isalive;
     AudioClip reloadSound;
     AudioClip fireSound;
     AudioSource audioSource;
 	// Use this for initialization
 	void Start () {
+        targetScript = target.GetComponent<Target>();
         bulletInterval = 0;
         Bullet = 30;
         Bulletbox = 150;
+        score = 0;
+        Isalive = true;
+        HeadMarkerPosition = headMarker.transform.position;
         fireSound = Resources.Load<AudioClip>("Audio/fire");
         reloadSound = Resources.Load<AudioClip>("Audio/reload");
         audioSource = transform.GetComponent<AudioSource>();
@@ -42,12 +50,32 @@ public class Gun : MonoBehaviour {
 	}
     void Fire()
     {
-        GameObject bullet2 = (GameObject)Instantiate(bullet, muzzle.transform.position, bullet.transform.rotation);
+        GameObject effectObj = Resources.Load<GameObject>("Effects/FireEffect");
+        GameObject effectObj_1 = Resources.Load<GameObject>("Effects/FireEffect(1)");
+        Instantiate(effectObj_1, muzzle.transform.position, effectObj_1.transform.rotation);
         Ray rayOrigin = new Ray(muzzle.transform.position, -transform.forward);
-        Vector3 direction = rayOrigin.direction;
-        bullet2.GetComponent<Rigidbody>().velocity = direction * bulletspeed;
-        GameObject effectObj = Resources.Load<GameObject>("Effects/FireEffect(1)");
-        Instantiate(effectObj, muzzle.transform.position, effectObj.transform.rotation);
+        RaycastHit hit = new RaycastHit();
+        if(Physics.Raycast(rayOrigin,out hit))
+        {
+            Instantiate(effectObj, hit.point-new Vector3(0f,0f,0.5f), effectObj.transform.rotation);
+            Vector3 HitPosition = hit.point;
+            float dis = Vector3.Distance(HeadMarkerPosition, HitPosition);
+            if (hit.collider.gameObject.tag == "enemy")
+            {
+                if (targetScript.life > 0)
+                {
+                    targetScript.life -= 1;
+                    score = 1000 / (dis+1);
+                    print(score);
+                }
+                if (targetScript.life == 0 && Isalive==true)
+                {
+                    targetScript.anim.SetBool("broken", true);
+                    Isalive = false;
+                    StartCoroutine("Revive");
+                }
+            }
+        }
         Bullet -= 1;
     }
     void PlayFireAudio()
@@ -63,5 +91,12 @@ public class Gun : MonoBehaviour {
     void PlayReloadAudio()
     {
         audioSource.PlayOneShot(reloadSound);
+    }
+    IEnumerator Revive()
+    {
+        yield return new WaitForSeconds(10f);
+        targetScript.anim.SetBool("broken", false);
+        targetScript.life = 5;
+        Isalive = true;
     }
 }
