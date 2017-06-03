@@ -7,6 +7,8 @@ public class Gun : MonoBehaviour {
     public GameObject muzzle;
     public GameObject target;
     public GameObject headMarker;
+    public Text[] text = new Text[4];
+    Vector3 center;
     Target targetScript;
     float bulletInterval;
     int Bullet;
@@ -19,6 +21,7 @@ public class Gun : MonoBehaviour {
     AudioSource audioSource;
 	// Use this for initialization
 	void Start () {
+        center = new Vector3(Screen.width / 2, Screen.height / 2);
         targetScript = target.GetComponent<Target>();
         bulletInterval = 0;
         Bullet = 30;
@@ -34,6 +37,10 @@ public class Gun : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         bulletInterval += Time.deltaTime;
+        text[0].text = "Time:" + Time.time;
+        text[1].text = "Pt:" + score;
+        text[2].text = "BulletBox:" + Bulletbox;
+        text[3].text = "Bullet:" + Bullet+"/30";
         if (Input.GetMouseButtonDown(0) && Bullet>0)
         {
             if (bulletInterval >= 1.0f)
@@ -53,11 +60,12 @@ public class Gun : MonoBehaviour {
         GameObject effectObj = Resources.Load<GameObject>("Effects/FireEffect");
         GameObject effectObj_1 = Resources.Load<GameObject>("Effects/FireEffect(1)");
         Instantiate(effectObj_1, muzzle.transform.position, effectObj_1.transform.rotation);
-        Ray rayOrigin = new Ray(muzzle.transform.position, -transform.forward);
+        Ray rayOrigin = Camera.main.ScreenPointToRay(center);
+        Vector3 direction = rayOrigin.direction;
         RaycastHit hit = new RaycastHit();
         if(Physics.Raycast(rayOrigin,out hit))
         {
-            Instantiate(effectObj, hit.point-new Vector3(0f,0f,0.5f), effectObj.transform.rotation);
+            Instantiate(effectObj, hit.point-direction, effectObj.transform.rotation);
             Vector3 HitPosition = hit.point;
             float dis = Vector3.Distance(HeadMarkerPosition, HitPosition);
             if (hit.collider.gameObject.tag == "enemy")
@@ -65,8 +73,7 @@ public class Gun : MonoBehaviour {
                 if (targetScript.life > 0)
                 {
                     targetScript.life -= 1;
-                    score = 1000 / (dis+1);
-                    print(score);
+                    score = Mathf.Floor(1000 / (dis+1));
                 }
                 if (targetScript.life == 0 && Isalive==true)
                 {
