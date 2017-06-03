@@ -11,8 +11,9 @@ public class Gun : MonoBehaviour {
     float bulletInterval;
     int Bullet;
     int Bulletbox;
-    Vector3 Apos;
+    Vector3 HeadMarkerPosition;
     float score;
+    bool Isalive;
     AudioClip reloadSound;
     AudioClip fireSound;
     AudioSource audioSource;
@@ -23,7 +24,8 @@ public class Gun : MonoBehaviour {
         Bullet = 30;
         Bulletbox = 150;
         score = 0;
-        Apos = headMarker.transform.position;
+        Isalive = true;
+        HeadMarkerPosition = headMarker.transform.position;
         fireSound = Resources.Load<AudioClip>("Audio/fire");
         reloadSound = Resources.Load<AudioClip>("Audio/reload");
         audioSource = transform.GetComponent<AudioSource>();
@@ -56,19 +58,20 @@ public class Gun : MonoBehaviour {
         if(Physics.Raycast(rayOrigin,out hit))
         {
             Instantiate(effectObj, hit.point-new Vector3(0f,0f,0.5f), effectObj.transform.rotation);
-            Vector3 Bpos = hit.point;
-            float dis = Vector3.Distance(Apos, Bpos);
+            Vector3 HitPosition = hit.point;
+            float dis = Vector3.Distance(HeadMarkerPosition, HitPosition);
             if (hit.collider.gameObject.tag == "enemy")
             {
                 if (targetScript.life > 0)
                 {
                     targetScript.life -= 1;
-                    score = score + 1000 / dis;
+                    score = 1000 / (dis+1);
                     print(score);
                 }
-                if (targetScript.life == 0)
+                if (targetScript.life == 0 && Isalive==true)
                 {
                     targetScript.anim.SetBool("broken", true);
+                    Isalive = false;
                     StartCoroutine("Revive");
                 }
             }
@@ -94,5 +97,6 @@ public class Gun : MonoBehaviour {
         yield return new WaitForSeconds(10f);
         targetScript.anim.SetBool("broken", false);
         targetScript.life = 5;
+        Isalive = true;
     }
 }
